@@ -231,17 +231,36 @@
     const dialogForm = document.getElementById('nodeForm');
     const viewDialog = document.getElementById('viewDialog');
     const viewBody = document.getElementById('viewBody');
+    const viewTitle = document.getElementById('viewTitle');
+    const viewToggleBtn = document.getElementById('viewToggleDone');
+    const viewToggleLabel = document.getElementById('viewToggleLabel');
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 900px)').matches;
+    }
 
     function openViewDialog(id) {
         const b = findBlock(id);
         if (!b) return;
-        viewBody.textContent = b.title || '';
+        viewDialog.dataset.blockId = id;
+        viewTitle.textContent = b.title || (b.type === 'break' ? 'Descanso' : 'Detalle');
+        const meta = b.type === 'break' ? `Descanso · ${b.durationMin || 15} min` : (b.done ? 'Hecha' : 'Pendiente');
+        viewBody.textContent = meta;
+        if (b.type === 'break') {
+            viewToggleBtn.hidden = true;
+        } else {
+            viewToggleBtn.hidden = false;
+            viewToggleLabel.textContent = b.done ? 'Marcar como pendiente' : 'Marcar como hecha';
+            viewToggleBtn.classList.toggle('is-done', !!b.done);
+        }
         if (typeof viewDialog.showModal === 'function') viewDialog.showModal();
         else viewDialog.setAttribute('open', '');
     }
     function closeViewDialog() {
         if (viewDialog.open) viewDialog.close();
+        delete viewDialog.dataset.blockId;
     }
+    function currentViewBlockId() { return viewDialog.dataset.blockId || null; }
 
     function openDialog() {
         dialogForm.reset();
@@ -284,13 +303,23 @@
 
     /* ===== Event delegation ===== */
     document.body.addEventListener('click', e => {
+        const breakNodeEl = e.target.closest('.node.break');
+        if (breakNodeEl && isMobile()
+            && !e.target.closest('[data-no-toggle]')
+            && !e.target.closest('input, [contenteditable="true"]')
+            && !e.target.closest('[data-action]')) {
+            openViewDialog(breakNodeEl.dataset.block);
+            return;
+        }
+
         const actionEl = e.target.closest('[data-action]');
         if (!actionEl) return;
 
         if (actionEl.matches('.node[data-action="toggle-done"]')) {
             if (e.target.closest('[data-no-toggle]')) return;
             if (e.target.closest('[data-field]') && e.target.closest('[data-field]').isContentEditable) return;
-            toggleDone(actionEl.dataset.block);
+            if (isMobile()) openViewDialog(actionEl.dataset.block);
+            else toggleDone(actionEl.dataset.block);
             return;
         }
 
@@ -314,6 +343,26 @@
             case 'dialog-cancel': closeDialog(); break;
             case 'view-node':       if (blockId) openViewDialog(blockId); break;
             case 'view-close':      closeViewDialog(); break;
+            case 'view-toggle-done': {
+                const id = currentViewBlockId();
+                if (id) { toggleDone(id); closeViewDialog(); }
+                break;
+            }
+            case 'view-move-left': {
+                const id = currentViewBlockId();
+                if (id) { moveBlock(id, -1); closeViewDialog(); }
+                break;
+            }
+            case 'view-move-right': {
+                const id = currentViewBlockId();
+                if (id) { moveBlock(id, 1); closeViewDialog(); }
+                break;
+            }
+            case 'view-delete': {
+                const id = currentViewBlockId();
+                if (id) { deleteBlock(id); closeViewDialog(); }
+                break;
+            }
             case 'del-block':       if (blockId) deleteBlock(blockId); break;
             case 'move-left':       if (blockId) moveBlock(blockId, -1); break;
             case 'move-right':      if (blockId) moveBlock(blockId, 1); break;
