@@ -37,7 +37,7 @@ Todo el estado vive en `localStorage`, así que no hay cuentas, servidores ni bu
 ## Estructura
 
 ```
-habit-tracker/
+foco/
 ├── index.html    # Marcado
 ├── styles.css    # Estilos y tokens de diseño
 ├── main.js       # Toda la lógica
