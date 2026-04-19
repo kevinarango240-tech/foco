@@ -23,3 +23,4 @@ npm-debug.log*
 # Entorno
 .env
 .env.local
+.gitignore
