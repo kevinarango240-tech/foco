@@ -43,10 +43,10 @@
         }, 150);
     }
 
-    function todayIso() {
-        const d = new Date();
+    function fmtIso(d) {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
+    function todayIso() { return fmtIso(new Date()); }
 
     function getDay(dateIso) {
         if (!state.days[dateIso]) {
@@ -64,14 +64,14 @@
         const [y, m, d] = currentDate.split('-').map(Number);
         const dt = new Date(y, m - 1, d);
         dt.setDate(dt.getDate() + days);
-        currentDate = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+        currentDate = fmtIso(dt);
         render();
     }
 
     function isoShift(days) {
         const d = new Date();
         d.setDate(d.getDate() + days);
-        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        return fmtIso(d);
     }
 
     function formatDateLabel(iso) {
@@ -270,10 +270,7 @@
                 else datePickerEl.focus();
                 break;
             case 'toggle-theme': toggleTheme(); break;
-            case 'new-node':
-            case 'new-node-empty':
-                openDialog();
-                break;
+            case 'new-node': openDialog(); break;
             case 'dialog-cancel': closeDialog(); break;
             case 'del-block':       if (blockId) deleteBlock(blockId); break;
             case 'move-left':       if (blockId) moveBlock(blockId, -1); break;
@@ -496,4 +493,10 @@
     }
 
     init();
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        });
+    }
 })();
