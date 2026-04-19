@@ -807,9 +807,9 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
         gap: 28px;
     }
     .node {
-        width: min(46vw, 150px);
-        height: min(46vw, 150px);
-        padding: 12px;
+        width: min(38vw, 124px);
+        height: min(38vw, 124px);
+        padding: 10px;
     }
     .node + .node::before {
         right: auto;
@@ -837,9 +837,9 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
         padding: 4px 3px;
         gap: 2px;
     }
-    .node-controls .icon-btn { width: 30px; height: 30px; }
-    .node-controls .icon-btn svg { width: 13px; height: 13px; }
-    .node-title { font-size: 15px; }
+    .node-controls .icon-btn { width: 26px; height: 26px; }
+    .node-controls .icon-btn svg { width: 12px; height: 12px; }
+    .node-title { font-size: 13px; }
 
     .timeline-empty { padding: 60px 20px; }
 

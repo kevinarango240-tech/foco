@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'foco-v4';
+const CACHE_VERSION = 'foco-v5';
 const CORE_ASSETS = [
     './',
     './index.html',
