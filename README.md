@@ -43,11 +43,3 @@ foco/
 ├── main.js       # Toda la lógica
 └── README.md
 ```
-
-## Deploy
-
-Al ser 100% estática, puedes publicarla gratis en GitHub Pages, Netlify, Vercel, Cloudflare Pages, o cualquier hosting estático. No requiere build.
-
-## Licencia
-
-MIT.
