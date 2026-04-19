@@ -9,7 +9,8 @@
     const ICONS = {
         trash: '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         left:  '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        right: '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        right: '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        eye:   '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>'
     };
 
     /* ===== Store ===== */
@@ -115,12 +116,23 @@
             <li class="${classes.join(' ')}" data-block="${block.id}" ${isBreak ? '' : 'data-action="toggle-done"'}>
                 ${body}
                 <div class="node-controls" data-no-toggle>
+                    <button type="button" class="icon-btn btn-view" data-action="view-node" aria-label="Ver contenido" hidden>${ICONS.eye}</button>
                     <button type="button" class="icon-btn" data-action="move-left" aria-label="Mover a la izquierda">${ICONS.left}</button>
                     <button type="button" class="icon-btn" data-action="move-right" aria-label="Mover a la derecha">${ICONS.right}</button>
                     <button type="button" class="icon-btn" data-action="del-block" aria-label="Eliminar nodo">${ICONS.trash}</button>
                 </div>
             </li>
         `;
+    }
+
+    function detectOverflow() {
+        timelineEl.querySelectorAll('.node').forEach(nodeEl => {
+            const titleEl = nodeEl.querySelector('.node-title');
+            if (!titleEl) return;
+            const overflows = titleEl.scrollHeight - titleEl.clientHeight > 1;
+            const eyeBtn = nodeEl.querySelector('[data-action="view-node"]');
+            if (eyeBtn) eyeBtn.hidden = !overflows;
+        });
     }
 
     function render() {
@@ -131,6 +143,8 @@
 
         timelineEl.innerHTML = day.blocks.map(renderNode).join('');
         emptyEl.hidden = day.blocks.length > 0;
+
+        requestAnimationFrame(detectOverflow);
 
         renderStats();
     }
@@ -215,6 +229,19 @@
     /* ===== Dialog ===== */
     const dialog = document.getElementById('nodeDialog');
     const dialogForm = document.getElementById('nodeForm');
+    const viewDialog = document.getElementById('viewDialog');
+    const viewBody = document.getElementById('viewBody');
+
+    function openViewDialog(id) {
+        const b = findBlock(id);
+        if (!b) return;
+        viewBody.textContent = b.title || '';
+        if (typeof viewDialog.showModal === 'function') viewDialog.showModal();
+        else viewDialog.setAttribute('open', '');
+    }
+    function closeViewDialog() {
+        if (viewDialog.open) viewDialog.close();
+    }
 
     function openDialog() {
         dialogForm.reset();
@@ -241,6 +268,19 @@
         if (!title) { e.preventDefault(); return; }
         addBlock({ type, title, durationMin });
     });
+
+    // Sube el bottom-sheet por encima del teclado virtual en móvil
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const updateDialogOffset = () => {
+            if (!dialog.open) return;
+            const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+            dialog.style.setProperty('--kb-offset', kb + 'px');
+        };
+        vv.addEventListener('resize', updateDialogOffset);
+        vv.addEventListener('scroll', updateDialogOffset);
+        dialog.addEventListener('close', () => dialog.style.removeProperty('--kb-offset'));
+    }
 
     /* ===== Event delegation ===== */
     document.body.addEventListener('click', e => {
@@ -272,6 +312,8 @@
             case 'toggle-theme': toggleTheme(); break;
             case 'new-node': openDialog(); break;
             case 'dialog-cancel': closeDialog(); break;
+            case 'view-node':       if (blockId) openViewDialog(blockId); break;
+            case 'view-close':      closeViewDialog(); break;
             case 'del-block':       if (blockId) deleteBlock(blockId); break;
             case 'move-left':       if (blockId) moveBlock(blockId, -1); break;
             case 'move-right':      if (blockId) moveBlock(blockId, 1); break;

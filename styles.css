@@ -304,6 +304,17 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
     word-break: break-word;
     max-width: 100%;
     padding: 0 4px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+}
+.node-title[contenteditable="true"] {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
 }
 .node.done .node-title {
     text-decoration: line-through;
@@ -660,6 +671,16 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
     margin-top: 4px;
 }
 
+.view-body {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--text);
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
 /* ====== Responsive ====== */
 @media (max-width: 900px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -786,9 +807,9 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
         gap: 28px;
     }
     .node {
-        width: min(68vw, 210px);
-        height: min(68vw, 210px);
-        padding: 16px;
+        width: min(46vw, 150px);
+        height: min(46vw, 150px);
+        padding: 12px;
     }
     .node + .node::before {
         right: auto;
@@ -807,11 +828,17 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
     }
     .node-controls {
         opacity: 1;
-        bottom: -16px;
-        padding: 4px 8px;
+        left: 100%;
+        right: auto;
+        top: 50%;
+        bottom: auto;
+        transform: translate(6px, -50%);
+        flex-direction: column;
+        padding: 4px 3px;
+        gap: 2px;
     }
-    .node-controls .icon-btn { width: 32px; height: 32px; }
-    .node-controls .icon-btn svg { width: 14px; height: 14px; }
+    .node-controls .icon-btn { width: 30px; height: 30px; }
+    .node-controls .icon-btn svg { width: 13px; height: 13px; }
     .node-title { font-size: 15px; }
 
     .timeline-empty { padding: 60px 20px; }
@@ -926,7 +953,7 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
         width: 100%;
         margin: 0;
         position: fixed;
-        bottom: 0;
+        bottom: var(--kb-offset, 0px);
         left: 0;
         right: 0;
         top: auto;
@@ -936,7 +963,7 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
         border-radius: 22px 22px 0 0;
         padding: 18px 18px calc(18px + var(--safe-bottom));
         gap: 14px;
-        max-height: 85dvh;
+        max-height: calc(85dvh - var(--kb-offset, 0px));
         overflow-y: auto;
         animation: sheet-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
     }
